@@ -96,7 +96,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
         let alert = UIAlertController(title: "앱 종료", message: "정말 종료하시겠습니까?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         alert.addAction(UIAlertAction(title: "확인", style: .destructive, handler: { _ in
-            exit(0)
+            UIControl().sendAction(#selector(URLSessionTask.suspend), to: UIApplication.shared, for: nil)
+            // 앱을 백그라운드로 보냄
         }))
         self.present(alert, animated: true)
     }
