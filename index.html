@@ -60,7 +60,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
 
         self.navigationItem.leftBarButtonItem = backButton
         self.navigationItem.rightBarButtonItem = menuButton
-        // self.navigationItem.title = "톡톡케어"
+        self.navigationItem.title = "톡톡케어"
     }
 
     @objc func backButtonPressed() {
@@ -74,17 +74,17 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func showMenu() {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        alert.addAction(UIAlertAction(title: "📃 개인정보처리방침", style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: "개인정보처리방침", style: .default, handler: { _ in
             self.webView.load(URLRequest(url: URL(string: "https://lee6097.github.io/talktalkcareprivacy")!))
         }))
 
-        alert.addAction(UIAlertAction(title: "ℹ️ 버전정보", style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: "버전정보", style: .default, handler: { _ in
             let info = UIAlertController(title: "버전정보", message: "톡톡케어 v1.1.0", preferredStyle: .alert)
             info.addAction(UIAlertAction(title: "확인", style: .default))
             self.present(info, animated: true)
         }))
 
-        alert.addAction(UIAlertAction(title: "❌ 종료", style: .destructive, handler: { _ in
+        alert.addAction(UIAlertAction(title: "종료", style: .destructive, handler: { _ in
             self.confirmExit()
         }))
 
