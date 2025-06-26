@@ -39,6 +39,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupWebView()
+        setupNavigationBarAppearance()
         setupNavigationBar()
     }
 
@@ -54,13 +55,30 @@ class ViewController: UIViewController, WKNavigationDelegate {
         webView.load(request)
     }
 
+    // ✅ 여기서 상단바 색상/버튼 색상/제목 제거
+    func setupNavigationBarAppearance() {
+        let navBar = self.navigationController?.navigationBar
+
+        // 배경색: #6fb8f4
+        navBar?.barTintColor = UIColor(red: 111/255, green: 184/255, blue: 244/255, alpha: 1.0)
+
+        // 버튼(아이템) 색상: 흰색
+        navBar?.tintColor = .white
+
+        // 타이틀 숨기기
+        self.navigationItem.title = nil
+
+        // 하단 그림자 제거 (선 제거 효과)
+        navBar?.shadowImage = UIImage()
+        navBar?.isTranslucent = false
+    }
+
     func setupNavigationBar() {
         let backButton = UIBarButtonItem(title: "◀︎", style: .plain, target: self, action: #selector(backButtonPressed))
         let menuButton = UIBarButtonItem(title: "☰", style: .plain, target: self, action: #selector(showMenu))
 
         self.navigationItem.leftBarButtonItem = backButton
         self.navigationItem.rightBarButtonItem = menuButton
-        self.navigationItem.title = "톡톡케어"
     }
 
     @objc func backButtonPressed() {
@@ -93,11 +111,10 @@ class ViewController: UIViewController, WKNavigationDelegate {
     }
 
     func confirmExit() {
-        let alert = UIAlertController(title: "앱 종료", message: "종료하시겠습니까?", preferredStyle: .alert)
+        let alert = UIAlertController(title: "앱 종료", message: "정말 종료하시겠습니까?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         alert.addAction(UIAlertAction(title: "확인", style: .destructive, handler: { _ in
             UIControl().sendAction(#selector(URLSessionTask.suspend), to: UIApplication.shared, for: nil)
-            // 앱을 백그라운드로 보냄
         }))
         self.present(alert, animated: true)
     }
@@ -109,6 +126,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         view.addGestureRecognizer(swipe)
     }
 }
+
 </code></pre>
 
 </body>
