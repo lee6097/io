@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>ViewController.swift 코드 보기</title>
+  <style>
+    body {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      background-color: #f7f7f7;
+      padding: 20px;
+      color: #333;
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 20px;
+      overflow-x: auto;
+      border-radius: 8px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>ViewController.swift 전체 코드</h1>
+
+<pre><code>import UIKit
+import WebKit
+
+class ViewController: UIViewController, WKNavigationDelegate {
+    var webView: WKWebView!
+    let homeURL = URL(string: "https://lee6097.github.io/talktalkcaremain")!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupWebView()
+        setupNavigationBar()
+    }
+
+    func setupWebView() {
+        let webConfiguration = WKWebViewConfiguration()
+        webConfiguration.allowsInlineMediaPlayback = true
+
+        webView = WKWebView(frame: self.view.frame, configuration: webConfiguration)
+        webView.navigationDelegate = self
+        view.addSubview(webView)
+
+        let request = URLRequest(url: homeURL)
+        webView.load(request)
+    }
+
+    func setupNavigationBar() {
+        let backButton = UIBarButtonItem(title: "◀︎", style: .plain, target: self, action: #selector(backButtonPressed))
+        let menuButton = UIBarButtonItem(title: "☰", style: .plain, target: self, action: #selector(showMenu))
+
+        self.navigationItem.leftBarButtonItem = backButton
+        self.navigationItem.rightBarButtonItem = menuButton
+        // self.navigationItem.title = "톡톡케어"
+    }
+
+    @objc func backButtonPressed() {
+        if webView.canGoBack {
+            webView.goBack()
+        } else {
+            confirmExit()
+        }
+    }
+
+    @objc func showMenu() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        alert.addAction(UIAlertAction(title: "📃 개인정보처리방침", style: .default, handler: { _ in
+            self.webView.load(URLRequest(url: URL(string: "https://lee6097.github.io/talktalkcareprivacy")!))
+        }))
+
+        alert.addAction(UIAlertAction(title: "ℹ️ 버전정보", style: .default, handler: { _ in
+            let info = UIAlertController(title: "버전정보", message: "톡톡케어 v1.1.0", preferredStyle: .alert)
+            info.addAction(UIAlertAction(title: "확인", style: .default))
+            self.present(info, animated: true)
+        }))
+
+        alert.addAction(UIAlertAction(title: "❌ 종료", style: .destructive, handler: { _ in
+            self.confirmExit()
+        }))
+
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        self.present(alert, animated: true)
+    }
+
+    func confirmExit() {
+        let alert = UIAlertController(title: "앱 종료", message: "정말 종료하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .destructive, handler: { _ in
+            exit(0)
+        }))
+        self.present(alert, animated: true)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(backButtonPressed))
+        swipe.direction = .right
+        view.addGestureRecognizer(swipe)
+    }
+}
+</code></pre>
+
+</body>
+</html>
