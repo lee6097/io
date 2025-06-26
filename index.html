@@ -93,7 +93,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     }
 
     func confirmExit() {
-        let alert = UIAlertController(title: "앱 종료", message: "정말 종료하시겠습니까?", preferredStyle: .alert)
+        let alert = UIAlertController(title: "앱 종료", message: "종료하시겠습니까?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         alert.addAction(UIAlertAction(title: "확인", style: .destructive, handler: { _ in
             UIControl().sendAction(#selector(URLSessionTask.suspend), to: UIApplication.shared, for: nil)
