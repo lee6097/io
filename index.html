@@ -39,7 +39,6 @@ class ViewController: UIViewController, WKNavigationDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupWebView()
-        setupNavigationBarAppearance()
         setupNavigationBar()
     }
 
@@ -55,42 +54,13 @@ class ViewController: UIViewController, WKNavigationDelegate {
         webView.load(request)
     }
 
-    // ✅ 상단바 색상, 버튼 색상, 타이틀 제거 - iOS 15 이상 포함
-    func setupNavigationBarAppearance() {
-        let color = UIColor(red: 111/255, green: 184/255, blue: 244/255, alpha: 1.0) // #6fb8f4
-
-        if #available(iOS 15.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = color
-            appearance.titleTextAttributes = [.foregroundColor: UIColor.clear] // 제목 숨김
-            appearance.shadowColor = .clear
-
-            let navBar = self.navigationController?.navigationBar
-            navBar?.standardAppearance = appearance
-            navBar?.scrollEdgeAppearance = appearance
-            navBar?.compactAppearance = appearance
-            navBar?.tintColor = .white // 버튼 색상
-
-            self.navigationItem.title = ""
-        } else {
-            let navBar = self.navigationController?.navigationBar
-            navBar?.barTintColor = color
-            navBar?.tintColor = .white
-            navBar?.titleTextAttributes = [.foregroundColor: UIColor.clear]
-            navBar?.shadowImage = UIImage()
-            navBar?.isTranslucent = false
-
-            self.navigationItem.title = ""
-        }
-    }
-
     func setupNavigationBar() {
         let backButton = UIBarButtonItem(title: "◀︎", style: .plain, target: self, action: #selector(backButtonPressed))
         let menuButton = UIBarButtonItem(title: "☰", style: .plain, target: self, action: #selector(showMenu))
 
         self.navigationItem.leftBarButtonItem = backButton
         self.navigationItem.rightBarButtonItem = menuButton
+        self.navigationItem.title = "톡톡케어"
     }
 
     @objc func backButtonPressed() {
@@ -123,10 +93,11 @@ class ViewController: UIViewController, WKNavigationDelegate {
     }
 
     func confirmExit() {
-        let alert = UIAlertController(title: "앱 종료", message: "종료하시겠습니까?", preferredStyle: .alert)
+        let alert = UIAlertController(title: "앱 종료", message: "정말 종료하시겠습니까?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         alert.addAction(UIAlertAction(title: "확인", style: .destructive, handler: { _ in
             UIControl().sendAction(#selector(URLSessionTask.suspend), to: UIApplication.shared, for: nil)
+            // 앱을 백그라운드로 보냄
         }))
         self.present(alert, animated: true)
     }
@@ -138,7 +109,6 @@ class ViewController: UIViewController, WKNavigationDelegate {
         view.addGestureRecognizer(swipe)
     }
 }
-
 
 </code></pre>
 
