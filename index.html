@@ -46,7 +46,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.allowsInlineMediaPlayback = true
 
-        webView = WKWebView(frame: self.view.frame, configuration: webConfiguration)
+        // safeArea로 웹뷰 크기 안전하게 설정
+        webView = WKWebView(frame: view.safeAreaLayoutGuide.layoutFrame, configuration: webConfiguration)
         webView.navigationDelegate = self
         view.addSubview(webView)
 
@@ -61,6 +62,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
         self.navigationItem.leftBarButtonItem = backButton
         self.navigationItem.rightBarButtonItem = menuButton
         self.navigationItem.title = "톡톡케어"
+        
+        // 네비게이션 바가 안 보일 경우 NavigationController로 감싸야 함
     }
 
     @objc func backButtonPressed() {
@@ -74,9 +77,11 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func showMenu() {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        alert.addAction(UIAlertAction(title: "개인정보처리방침", style: .default, handler: { _ in
-            self.webView.load(URLRequest(url: URL(string: "https://lee6097.github.io/talktalkcareprivacy")!))
-        }))
+        if let privacyURL = URL(string: "https://lee6097.github.io/talktalkcareprivacy") {
+            alert.addAction(UIAlertAction(title: "개인정보처리방침", style: .default, handler: { _ in
+                self.webView.load(URLRequest(url: privacyURL))
+            }))
+        }
 
         alert.addAction(UIAlertAction(title: "버전정보", style: .default, handler: { _ in
             let info = UIAlertController(title: "버전정보", message: "톡톡케어 v1.1.0", preferredStyle: .alert)
@@ -96,8 +101,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
         let alert = UIAlertController(title: "앱 종료", message: "정말 종료하시겠습니까?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         alert.addAction(UIAlertAction(title: "확인", style: .destructive, handler: { _ in
+            // suspend()는 앱 심사에서 거부될 수 있어 대체 방식 사용
             UIControl().sendAction(#selector(URLSessionTask.suspend), to: UIApplication.shared, for: nil)
-            // 앱을 백그라운드로 보냄
         }))
         self.present(alert, animated: true)
     }
@@ -109,6 +114,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         view.addGestureRecognizer(swipe)
     }
 }
+
 
 </code></pre>
 
