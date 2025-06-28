@@ -31,28 +31,57 @@
 
 <pre><code>import UIKit
 import WebKit
+import AVFoundation // 1. AVFoundation 프레임워크 추가
 
-class ViewController: UIViewController, WKNavigationDelegate {
+// 2. WKUIDelegate 프로토콜 채택
+class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     var webView: WKWebView!
     let homeURL = URL(string: "https://lee6097.github.io/talktalkcaremain")!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // 3. 마이크 권한 요청 함수 호출
+        requestMicrophonePermission()
+        
         setupWebView()
         setupNavigationBar()
+    }
+    
+    // MARK: - 권한 요청 함수 추가
+    func requestMicrophonePermission() {
+        AVAudioSession.sharedInstance().requestRecordPermission { (granted) in
+            if granted {
+                print("마이크 권한이 허용되었습니다.")
+            } else {
+                print("마이크 권한이 거부되었습니다.")
+                // 권한이 거부되었을 때 사용자에게 알림 등을 처리할 수 있습니다.
+            }
+        }
     }
 
     func setupWebView() {
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.allowsInlineMediaPlayback = true
-        webConfiguration.mediaTypesRequiringUserActionForPlayback = [] // 음성 재생 허용
+        webConfiguration.mediaTypesRequiringUserActionForPlayback = []
 
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = self
+        webView.uiDelegate = self // 4. uiDelegate 설정
         view.addSubview(webView)
 
         let request = URLRequest(url: homeURL)
         webView.load(request)
+    }
+    
+    // 5. WKUIDelegate 메서드 구현 (웹페이지의 미디어 캡처 권한 요청 처리)
+    // 이 함수가 호출되면 웹사이트가 마이크나 카메라 사용을 요청한 것입니다.
+    func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedBy frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+        print("미디어 캡처 권한 요청: \(type)")
+        
+        // Info.plist 권한과 AVAudioSession 요청이 선행된 상태이므로,
+        // 웹뷰 내에서는 요청을 허용해줍니다.
+        decisionHandler(.grant)
     }
 
     override func viewDidLayoutSubviews() {
@@ -98,7 +127,6 @@ class ViewController: UIViewController, WKNavigationDelegate {
 
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
 
-        // ✅ iPad 충돌 방지: popover 설정
         if let popover = alert.popoverPresentationController {
             popover.barButtonItem = self.navigationItem.rightBarButtonItem
         }
