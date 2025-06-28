@@ -45,6 +45,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     func setupWebView() {
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.allowsInlineMediaPlayback = true
+        webConfiguration.mediaTypesRequiringUserActionForPlayback = [] // 음성 재생 허용
 
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = self
@@ -56,7 +57,6 @@ class ViewController: UIViewController, WKNavigationDelegate {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // safe area에 맞게 크기 설정 (화면 회전 대응)
         webView.frame = view.safeAreaLayoutGuide.layoutFrame
     }
 
@@ -80,11 +80,11 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func showMenu() {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        if let privacyURL = URL(string: "https://lee6097.github.io/talktalkcareprivacy") {
-            alert.addAction(UIAlertAction(title: "개인정보처리방침", style: .default, handler: { _ in
-                self.webView.load(URLRequest(url: privacyURL))
-            }))
-        }
+        alert.addAction(UIAlertAction(title: "개인정보처리방침", style: .default, handler: { _ in
+            if let url = URL(string: "https://lee6097.github.io/talktalkcareprivacy") {
+                self.webView.load(URLRequest(url: url))
+            }
+        }))
 
         alert.addAction(UIAlertAction(title: "버전정보", style: .default, handler: { _ in
             let info = UIAlertController(title: "버전정보", message: "톡톡케어 v1.1.0", preferredStyle: .alert)
@@ -97,6 +97,12 @@ class ViewController: UIViewController, WKNavigationDelegate {
         }))
 
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+
+        // ✅ iPad 충돌 방지: popover 설정
+        if let popover = alert.popoverPresentationController {
+            popover.barButtonItem = self.navigationItem.rightBarButtonItem
+        }
+
         self.present(alert, animated: true)
     }
 
