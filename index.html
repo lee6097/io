@@ -32,7 +32,7 @@
 <pre><code>import UIKit
 import WebKit
 
-class ViewController: UIViewController, WKNavigationDelegate {
+class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     var webView: WKWebView!
     let homeURL = URL(string: "https://lee6097.github.io/talktalkcaremain")!
 
@@ -45,10 +45,11 @@ class ViewController: UIViewController, WKNavigationDelegate {
     func setupWebView() {
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.allowsInlineMediaPlayback = true
-        webConfiguration.mediaTypesRequiringUserActionForPlayback = [] // 음성 재생 허용
+        webConfiguration.mediaTypesRequiringUserActionForPlayback = [] // 음성 재생 자동 허용
 
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = self
+        webView.uiDelegate = self // ✅ 마이크 권한 요청 처리 위해 설정
         view.addSubview(webView)
 
         let request = URLRequest(url: homeURL)
@@ -121,7 +122,18 @@ class ViewController: UIViewController, WKNavigationDelegate {
         swipe.direction = .right
         view.addGestureRecognizer(swipe)
     }
+
+    // ✅ iOS 15 이상: 마이크/카메라 권한 자동 승인
+    @available(iOS 15.0, *)
+    func webView(_ webView: WKWebView,
+                 requestMediaCapturePermissionFor origin: WKSecurityOrigin,
+                 initiatedByFrame frame: WKFrameInfo,
+                 type: WKMediaCaptureType,
+                 decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+        decisionHandler(.grant)
+    }
 }
+
 
 
 
