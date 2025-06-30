@@ -33,49 +33,57 @@
 
 import UIKit
 import WebKit
-import AVFoundation
+import AVFoundation // 1. AVFoundation 프레임워크 추가
 
-class ViewController: UIViewController, WKNavigationDelegate, WKUIDeagate {
+// 2. WKUIDelegate 프로토콜 채택
+class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     var webView: WKWebView!
-    // 👈 1. URL을 새로운 진단용 페이지 주소로 변경합니다.
-    let homeURL = URL(string: "https://lee6097.github.io/talktalkcaremain/test-on-device.html")!
+    let homeURL = URL(string: "https://lee6097.github.io/talktalkcaremain")!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupAudioSession()
+        
+        // 3. 마이크 권한 요청 함수 호출
+        requestMicrophonePermission()
+        
         setupWebView()
         setupNavigationBar()
     }
     
-    // AVAudioSession 설정은 그대로 둡니다. 올바른 코드입니다.
-    func setupAudioSession() {
-        do {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            print("✅ 오디오 세션 설정에 성공했습니다.")
-        } catch {
-            print("❌ 오디오 세션 설정에 실패했습니다: \(error.localizedDescription)")
+    // MARK: - 권한 요청 함수 추가
+    func requestMicrophonePermission() {
+        AVAudioSession.sharedInstance().requestRecordPermission { (granted) in
+            if granted {
+                print("마이크 권한이 허용되었습니다.")
+            } else {
+                print("마이크 권한이 거부되었습니다.")
+                // 권한이 거부되었을 때 사용자에게 알림 등을 처리할 수 있습니다.
+            }
         }
     }
 
     func setupWebView() {
         let webConfiguration = WKWebViewConfiguration()
-        
-        // 👈 2. 웹뷰를 항상 깨끗한 상태로 실행하도록 설정합니다. (매우 중요)
-        // 캐시나 쿠키, 이전 권한 설정 등의 영향을 받지 않는 '비공개 모드'와 같습니다.
-        webConfiguration.websiteDataStore = .nonPersistent()
-        
         webConfiguration.allowsInlineMediaPlayback = true
         webConfiguration.mediaTypesRequiringUserActionForPlayback = []
 
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = self
-        webView.uiDelegate = self
+        webView.uiDelegate = self // 4. uiDelegate 설정
         view.addSubview(webView)
 
         let request = URLRequest(url: homeURL)
         webView.load(request)
+    }
+    
+    // 5. WKUIDelegate 메서드 구현 (웹페이지의 미디어 캡처 권한 요청 처리)
+    // 이 함수가 호출되면 웹사이트가 마이크나 카메라 사용을 요청한 것입니다.
+    func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedBy frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+        print("미디어 캡처 권한 요청: \(type)")
+        
+        // Info.plist 권한과 AVAudioSession 요청이 선행된 상태이므로,
+        // 웹뷰 내에서는 요청을 허용해줍니다.
+        decisionHandler(.grant)
     }
 
     override func viewDidLayoutSubviews() {
@@ -142,15 +150,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDeagate {
         let swipe = UISwipeGestureRecognizer(target: self, action: #selector(backButtonPressed))
         swipe.direction = .right
         view.addGestureRecognizer(swipe)
-    }
-
-    @available(iOS 15.0, *)
-    func webView(_ webView: WKWebView,
-                 requestMediaCapturePermissionFor origin: WKSecurityOrigin,
-                 initiatedByFrame frame: WKFrameInfo,
-                 type: WKMediaCaptureType,
-                 decisionHandler: @escaping (WKPermissionDecision) -> Void) {
-        decisionHandler(.grant)
     }
 }
 
